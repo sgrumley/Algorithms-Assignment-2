@@ -98,54 +98,22 @@ string nextBestWord(string word, unordered_map<string, vector<string> >& start, 
 
     getWordChars(word, s, f);
 
-
-    // cout << "possible next words: " << endl;
-
     for (auto& words : start[f]) {
         getWordChars(words, sTemp, fTemp);
 
-        // cout << words << " ";
-
-        if (finish[fTemp].size() > max) { // && (firstValue.compare(words) != 0)) {
+        if (finish[fTemp].size() > max) {
             max      = start[fTemp].size();
             wordTemp = words;
             rfTemp   = fTemp;
             rsTemp   = sTemp;
 
-
             // save index or reference to linked list
         }
-    } // cout << endl;
-    cout << "current word: " << word << endl;
-    cout << "best word: " << wordTemp << endl;
+    }
 
+    // Remove words so they can't be chosen again
     start[rsTemp].erase(remove(start[rsTemp].begin(), start[rsTemp].end(), wordTemp), start[rsTemp].end());
     finish[rfTemp].erase(remove(finish[rfTemp].begin(), finish[rfTemp].end(), wordTemp), finish[rfTemp].end());
-
-    // start[]
-
-    // cout << "Start--:" << endl;
-
-    // printMap(start);
-    // cout << "Finish:--" << endl;
-
-    // printMap(finish);
-
-    // auto sitr = find(start[s].begin(), start[s].end(), wordTemp);
-
-    // if (sitr != start[s].end()) {
-    //     cout << "found and deleted" << endl;
-    //     start[s].erase(sitr);
-    // }
-    // auto fitr = find(finish[f].begin(), finish[f].end(), wordTemp);
-
-    // if (fitr != finish[f].end()) {
-    //     cout << "found and deleted" << endl;
-    //     finish[f].erase(fitr);
-    // }
-
-    // remove via index or reference
-    // find the value you in start
 
     return wordTemp;
 }
@@ -181,31 +149,7 @@ void createSequence(unordered_map<string, vector<string> >& start, unordered_map
 
         getWordChars(currentWord, s, f);
 
-        cout << "current word " << currentWord  << " " << sequence.size() << " " << start[f].size() << " " << maxSequence.size() << endl;
-
-        // If there is no key and the sequence is larger than 1
-
-        // if ((start.count(f) < 1) && (sequence.size() > 1)) {
-        //     // migth be able to remove
-        //     cout << "Backtrack started" << endl;
-        //     currentWord = sequence.back();
-        //     sequence.pop_back();
-        //     f = s;
-        // } else {
-        //     break;
-        // }
-        if (start.count(f) < 1)  {
-            if (sequence.size() > 1) {
-                // cout << "Backtrack started" << endl;
-                sequence.pop_back();
-                currentWord = sequence.back();
-                getWordChars(currentWord, s, f);
-            } else {
-                break;
-            }
-
-            // migth be able to remove
-        }
+        // cout << "current word " << currentWord  << " " << sequence.size() << " " << start[f].size() << " " << maxSequence.size() << endl;
 
         // Backtrack while there is no values in the list for the next node and
         // there is nothing in the list
@@ -218,7 +162,6 @@ void createSequence(unordered_map<string, vector<string> >& start, unordered_map
                 // if this is the longest sequence recorded,
                 if (sequence.size() > maxSequence.size()) {
                     // copy list to keep track of longest list
-                    // copy(sequence.begin(), sequence.end(), back_inserter(maxSequence));
                     maxSequence = sequence;
                 }
 
@@ -229,6 +172,7 @@ void createSequence(unordered_map<string, vector<string> >& start, unordered_map
                 break;
             }
         }
+
 
         // if a next node is available, make the move
         // if corresponding characters is a key in the dictionary and the key has
@@ -244,10 +188,6 @@ void createSequence(unordered_map<string, vector<string> >& start, unordered_map
             // else there was no move available, break
             break;
         }
-
-        // k++;
-
-        // if (k > 5) break;
     }
 
     // print sequence
@@ -268,33 +208,9 @@ int main() {
     // returns a list of words from the dictionary of wordlength
     readWordsFromFile(wordLength, start, finish);
 
-    // cout << "Start:" << endl;
-
-    // printMap(start);
-    // cout << "Finish:" << endl;
-
-    // printMap(finish);
-
-    // string startWord;
-
     // returns the best word to start on
     firstValue = startValues(start, finish);
 
-    // cout << "Start:" << endl;
-
-    // printMap(start);
-    // cout << "Finish:" << endl;
-
-    // printMap(finish);
-
-    // cout << "Starting word: " << firstValue << endl;
-
-    // string s, f;
-    // getWordChars(firstValue, s, f);
-
     // return the longest sequence found
     createSequence(start, finish, firstValue, wordLength);
-
-    // start[s].erase(remove(start[s].begin(), start[s].end(), firstValue), start[s].end());
-    // finish[f].erase(remove(finish[f].begin(), finish[f].end(), firstValue), finish[f].end());
 }
