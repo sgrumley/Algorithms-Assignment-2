@@ -3,6 +3,7 @@
 using namespace std;
 
 int n;
+int clusterCount = 0;
 
 void printGrid(vector<vector<int> >& grid) {
     for (auto& row : grid) {
@@ -33,12 +34,13 @@ vector<vector<int> >readInput(string filename) {
     return grid;
 }
 
-int clusterSize(int id, vector<int>& clusterSize) {
+int getClusterSize(int id, vector<int>& clusterSize) {
     return clusterSize.at(id - 2);
 }
 
 void searchCluster(vector<vector<int> >& grid, int i, int j, int clusterID) {
     // have a count in here as well
+
     if ((i < 0) || (i >= n) || (j < 0) || (j >= n) || (grid.at(i).at(j) != 1)) {
         return;
     }
@@ -46,30 +48,35 @@ void searchCluster(vector<vector<int> >& grid, int i, int j, int clusterID) {
     // mark node with id
     grid.at(i).at(j) = clusterID;
 
+    // maybe make clusterCount public
+    clusterCount++;
+
     // call each neighbour
     searchCluster(grid, i + 1, j,     clusterID); // down
     searchCluster(grid, i,     j + 1, clusterID); // right
-    // Can probably not do top or left since they have already been traversed
     searchCluster(grid, i - 1, j,     clusterID); // top
     searchCluster(grid, i,     j - 1, clusterID); // left
 }
 
 void preProcess(vector<vector<int> >& grid) {
     int clusterID = 2;
-    int i, j, clusterCount = 0; // only need i, j if we are storing values
+    int i         = 0;
+    int j         = 0; // only need i, j if we are storing values
     vector<int> clusterSize;
 
     // potensially add a vector<pair<int, int>> to keep track of co ordinates if required
 
     for (auto& row : grid) {
-        i++;
-
         for (auto& col : row) {
             if (col == 1) {
                 // search logic only need to go right or down
+                clusterCount = 0;
                 searchCluster(grid, i, j, clusterID);
-                col = clusterID;
-                clusterCount++;
+                cout << "Cluster number" << clusterCount << endl;
+
+                // col = clusterID;
+                // clusterCount++;
+                clusterID++;
 
                 clusterSize.push_back(clusterCount);
             } else if (col == 0) {
@@ -79,8 +86,13 @@ void preProcess(vector<vector<int> >& grid) {
             }
             j++;
         } j = 0;
+        i++;
     }
     printGrid(grid);
+
+    for (int i = 0; i < clusterSize.size(); i++) {
+        cout <<  clusterSize.at(i) << " ";
+    } cout << endl << endl;
 
     // use DFS to find all groups
     // if the position is a 1 then change it to cluster ID starting at id=2
