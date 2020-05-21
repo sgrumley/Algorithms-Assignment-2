@@ -117,26 +117,26 @@ void search(Maze& m1) {
 
             if (std::find(pathTaken.begin(), pathTaken.end(), data[option].id) == pathTaken.end()) {
                 pq.push(data[option]);
-            }
 
-
-            if (option == currentStep.id - 1) {
-                data[option].path   = 'E';
-                data[option].parent = currentStep.id;
-            } else if (option == currentStep.id + 1) {
-                data[option].path   = 'W';
-                data[option].parent = currentStep.id;
-            } else if (option > currentStep.id - 1) {
-                data[option].path   = 'N';
-                data[option].parent = currentStep.id;
-            } else if (option < currentStep.id + 1) {
-                data[option].path   = 'S';
-                data[option].parent = currentStep.id;
-            } else {
-                data[option].path   = 'X';
-                data[option].parent = 1;
+                if (option == currentStep.id - 1) {
+                    data[option].path   = 'E';
+                    data[option].parent = currentStep.id;
+                } else if (option == currentStep.id + 1) {
+                    data[option].path   = 'W';
+                    data[option].parent = currentStep.id;
+                } else if (option > currentStep.id - 1) {
+                    data[option].path   = 'N';
+                    data[option].parent = currentStep.id;
+                } else if (option < currentStep.id + 1) {
+                    data[option].path   = 'S';
+                    data[option].parent = currentStep.id;
+                } else {
+                    data[option].path   = 'X';
+                    data[option].parent = 1;
+                }
             }
         }
+
 
         if (currentStep.id == m1.gID) {
             goalState = true;
@@ -154,18 +154,22 @@ void search(Maze& m1) {
 
     vector<int> sol;
     sol.push_back(data[1].id);
+    int pos = pathTaken.size() - 1;
+    int par = pathTaken[pos];
 
-    int par = data[1].parent;
+    // int par = data[pos].parent;
 
-    while (par != m1.gID) {
+    while (par != m1.sID) {
         sol.push_back(data[par].parent);
         cout << endl << data[par].parent << " ";
         par = data[par].parent;
     }
-    par = data[1].parent;
+
+    // par = data[pos].parent;
+    par = pathTaken[pos];
     cout << endl << start << " ";
 
-    while (par != m1.gID) {
+    while (par != m1.sID) {
         cout << data[par].path << " ";
         par = data[par].parent;
     }
