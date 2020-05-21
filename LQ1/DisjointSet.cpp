@@ -40,13 +40,11 @@ void DSet::unionSet(int e1, int e2) {
 
         // update size
         rank[p1] += rank[p2];
-        setSize(e2);
     } else {
         parent[p1] = p2;
 
         // update size
         rank[p2] += rank[p1];
-        setSize(e1);
     }
 }
 
