@@ -7,7 +7,7 @@ void readWordsFromFile(unordered_map<string, list<string> >& movies, vector<stri
     ifstream dictionary;
 
 
-    dictionary.open("bacon2.txt");
+    dictionary.open("bacon3.txt");
 
 
     while (!dictionary.eof()) {
