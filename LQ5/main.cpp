@@ -2,54 +2,15 @@
 
 using namespace std;
 
-void readWordsFromFileMapped(unordered_map<string, list<string> >& movies, vector<string>& kbMovies) {
-    string   line;
-    ifstream dictionary;
-
-
-    dictionary.open("bacon1.txt");
-
-    while (!dictionary.eof()) {
-        string actor, movie;
-        getline(dictionary, actor, '|');
-        getline(dictionary, movie);
-
-        // add the word to the start array based on the second and third characters
-        if (movies.count(movie) == 1) {
-            // append word to value
-            movies[movie].push_back(actor);
-        } else {
-            // create key and value
-            list<string> tmp;
-            tmp.push_back(actor);
-            movies.insert(pair<string, list<string> >(movie, tmp));
-        }
-
-        // if start doesn't have any keys
-        if (movies.size() == 0) {
-            // append the word to both disctionaries
-            list<string> tmp;
-            tmp.push_back(actor);
-            movies.insert(pair<string, list<string> >(movie, tmp));
-        }
-
-        if (actor.compare("Kevin Bacon (I)") == 0) {
-            kbMovies.push_back(movie);
-        }
-    }
-}
-
 vector<vector<bool> >readWordsFromFile(vector<string>& movies, vector<string>& actors, int& kb) {
     string   line;
     ifstream dictionary;
 
-    // vector<vector<bool> >   graph;
     vector<pair<int, int> > edge;
 
 
     dictionary.open("bacon0.txt");
 
-    // /int kb;
 
     while (!dictionary.eof()) {
         string actor, movie;
@@ -107,7 +68,6 @@ vector<vector<bool> >readWordsFromFile(vector<string>& movies, vector<string>& a
     /* -----------------------------------------------Data dump---------------------------------------------------- */
 
     for (int i = 0; i < edge.size(); i++) {
-        cout << edge[i].first << " " << edge[i].second << endl;
         graph[edge[i].first][edge[i].second] = true;
     } cout << endl;
     return graph;
@@ -134,7 +94,7 @@ void actorFactor(vector<string>& movies, vector<string>& actors, vector<vector<b
         }
     }
 
-    cout << "Highest Factor of " << " for the following actors:" << endl;
+    cout << endl << "Highest Factor of " << " for the following actors:" << endl;
 
     for (int i = 0; i < maxFactor.size(); i++) {
         cout << actors[maxFactor[i]] << endl;
@@ -145,7 +105,7 @@ void actorFactor(vector<string>& movies, vector<string>& actors, vector<vector<b
 int minLinkFactor(vector<string>& movies, vector<string>& actors, vector<vector<bool> >& graph,  string startActor,  string goalActor) {
     queue<int> commonMovies;
     int saPos, gaPos;
-    vector<int> movieRemoveList;
+
 
     // find the id's of each actor
     for (int i = 0; i < actors.size(); i++) {
@@ -160,41 +120,53 @@ int minLinkFactor(vector<string>& movies, vector<string>& actors, vector<vector<
         // could put a break when they have both been found
     }
 
-    // push starting actor into queue
-    commonMovies.push(saPos);
 
+    queue<int>  relatedActors;
+    queue<int>  relatedMovies;
+    vector<int> movieRemoveList;
+    vector<int> actorRemoveList;
     int c = 0;
 
-    while (!commonMovies.empty()) {
-        int common = commonMovies.front();
-        commonMovies.pop();
+    relatedActors.push(saPos);
 
-        // add common movies into queue
-        for (int i = 0; i < movies.size(); i++) {
-            if ((graph[i][saPos] == true) && (find(movieRemoveList.begin(), movieRemoveList.end(), i) == movieRemoveList.end())) {
-                cout << i << " ";
-                commonMovies.push(i);
-                cout << "Actor: " << movies[i] << endl;
-                movieRemoveList.push_back(i);
-            }
-        } cout << endl;
-
-        int nQ = commonMovies.size();
+    while (!relatedActors.empty()) {
+        int nQ = relatedActors.size();
         c++;
+        cout << "Depth: " << c << endl;
 
-        // iterate over elements added
-        // for (int i = 0; i < nQ; ++i) {
-        // for those common movies check if the goal actor is in that movie
-        cout << "Movie: " << movies[common] << endl;
+        for (int x = 0; x < nQ; x++) {
+            int currentActor = relatedActors.front();
+            relatedActors.pop();
 
-        for (int j = 0; j < actors.size(); j++) {
-            if (graph[common][gaPos] == true) {
-                return c;
+            for (int i = 0; i < movies.size(); i++) {
+                if ((graph[i][currentActor] == true) && (find(movieRemoveList.begin(), movieRemoveList.end(), i) == movieRemoveList.end())) {
+                    relatedMovies.push(i);
+                    cout << "Movie: " << movies[i] << endl;
+                    movieRemoveList.push_back(i);
+                }
+            }
+
+            int nQ = relatedMovies.size();
+
+            while (!relatedMovies.empty()) {
+                int currentMovie = relatedMovies.front();
+                relatedMovies.pop();
+
+                if (graph[currentMovie][gaPos] == true) {
+                    return c;
+                }
+
+                for (int j = 0; j < actors.size(); j++) {
+                    if ((graph[currentMovie][j] == true) && (find(actorRemoveList.begin(), actorRemoveList.end(), j) == actorRemoveList.end())) {
+                        relatedActors.push(j);
+                        cout << "Actor: " << actors[j] << endl;
+                        actorRemoveList.push_back(j);
+                    }
+                }
             }
         }
-
-        // }
     }
+
     return 0;
 }
 
@@ -225,7 +197,8 @@ int main() {
     // Answer should be 2
     string startActor = "Kevin Bacon (I)";
     string goalActor  = "Willie Allemang";
-    int    bflnk      = minLinkFactor(movies, actors, graph, startActor, goalActor);
+
+    int bflnk = minLinkFactor(movies, actors, graph, startActor, goalActor);
     cout << goalActor << "Has a Bacon Factor of  " << bflnk << endl << endl;
 
     // Part B Finds the minimum links between two given actors
@@ -233,6 +206,6 @@ int main() {
     string startActor1 = "Willie Allemang";
     string goalActor1  = "Matin Azizpour";
 
-    // int    minlnk      = minLinkFactor(movies, actors, graph, startActor, goalActor);
-    // cout << "There are " << minlnk << "Minimum Links between " << startActor1 << " and " << goalActor1 << endl << endl;
+    int minlnk = minLinkFactor(movies, actors, graph, startActor1, goalActor1);
+    cout << "There are " << minlnk << " Minimum Links between " << startActor1 << " and " << goalActor1 << endl << endl;
 }
