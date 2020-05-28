@@ -1,6 +1,11 @@
 #include <bits/stdc++.h>
 
 using namespace std;
+using Clock = std::chrono::steady_clock;
+using std::chrono::time_point;
+using std::chrono::duration_cast;
+using std::chrono::milliseconds;
+
 
 string firstValue;
 
@@ -191,7 +196,7 @@ void createSequence(unordered_map<string, vector<string> >& start, unordered_map
     }
 
     // print sequence
-    cout << "Seq of length: " << sequence.size() << endl;
+    // cout << "Seq of length: " << sequence.size() << endl;
     cout << "Maximum Seq of length: " << maxSequence.size() << endl;
 
     // for (auto& elem : sequence) {
@@ -200,17 +205,25 @@ void createSequence(unordered_map<string, vector<string> >& start, unordered_map
 }
 
 int main() {
-    int wordLength = 6;
+    // int wordLength = 6;
     vector<string> words;
     unordered_map<string, vector<string> > start;
     unordered_map<string, vector<string> > finish;
 
-    // returns a list of words from the dictionary of wordlength
-    readWordsFromFile(wordLength, start, finish);
+    for (int i = 4; i <= 16; i++) {
+        // returns a list of words from the dictionary of wordlength
+        readWordsFromFile(i, start, finish);
 
-    // returns the best word to start on
-    firstValue = startValues(start, finish);
+        // returns the best word to start on
+        firstValue = startValues(start, finish);
 
-    // return the longest sequence found
-    createSequence(start, finish, firstValue, wordLength);
+        time_point<Clock> startTime = Clock::now();
+
+        // return the longest sequence found
+        createSequence(start, finish, firstValue, i);
+
+        time_point<Clock> endTime = Clock::now();
+        milliseconds diff         = duration_cast<milliseconds>(endTime - startTime);
+        cout << "Word Length: " << i << " Time: " << diff.count() << "ms" << endl << endl << endl;
+    }
 }

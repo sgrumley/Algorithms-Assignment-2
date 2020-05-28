@@ -51,23 +51,11 @@ void readWordsFromFile(int wl, vector<string>& wordList, string s, string e) {
     cout << "Amount of words: " << wordList.size() << endl;
 }
 
-int evaluateWord(string word, string goal) {
-    int comp = 0;
-
-    for (int i = 0; i < goal.length(); i++) {
-        // comp += fabs(goal[i] - word[i]);
-        if (goal[i] == word[i]) {
-            comp++;
-        }
-    }
-    return comp;
-}
-
 int wordLadder(string startWord, string goalWord, vector<string>& dictionary, int wl) {
     int changes = 0;
-    queue<string> Q;
+    queue<string> possibleWords;
 
-    Q.push(startWord);
+    possibleWords.push(startWord);
 
     // first try to change each letter to the goal word and check if it's a word
     for (int pos = 0; pos < wl; pos++) {
@@ -85,17 +73,17 @@ int wordLadder(string startWord, string goalWord, vector<string>& dictionary, in
 
     changes = 0;
 
-    // secondly bruteforce
-    while (!Q.empty()) {
+    // secondly bruteforce approach
+    while (!possibleWords.empty()) {
         changes++;
 
-        // Current size of the queue
-        int nQ = Q.size();
+        // iterating through current size of queue maintains BFS
+        int nQ = possibleWords.size();
 
         for (int i = 0; i < nQ; ++i) {
             // Remove the first word from the queue
-            string word = Q.front();
-            Q.pop();
+            string word = possibleWords.front();
+            possibleWords.pop();
 
             // For every character of the word
             for (int pos = 0; pos < wl; ++pos) {
@@ -113,7 +101,7 @@ int wordLadder(string startWord, string goalWord, vector<string>& dictionary, in
                     auto found = find(dictionary.begin(), dictionary.end(), word);
 
                     if (found != dictionary.end()) {
-                        Q.push(word);
+                        possibleWords.push(word);
                         dictionary.erase(found);
                     }
                 }
