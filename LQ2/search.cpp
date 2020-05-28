@@ -2,12 +2,14 @@
 
 
 #include "maze.cpp"
-#include "minHeap.cpp"
+
 using namespace std;
 
 // step refers to each step taken in the maze
 struct step {
     int        h;       // distance from exit
+    int        c;       // cost to this point
+    int        f;
     int        id;      // id of this step
     int        parent;
     char       path;    // direction we used to get here
@@ -17,7 +19,7 @@ struct step {
 
 struct LessThan {
     bool operator()(const step& lhs, const step& rhs) const  {
-        return lhs.h > rhs.h;
+        return lhs.h  > rhs.h;
     }
 };
 
@@ -46,6 +48,7 @@ void search(Maze& m1) {
             step tmp;
             tmp.id     = x;
             tmp.h      = abs(i - m1.gi) + abs(j - m1.gj);
+            tmp.c      = 1;
             tmp.parent = -1;
             int comp;
 
@@ -97,6 +100,7 @@ void search(Maze& m1) {
     pq.push(data[m1.sID]);
     vector<int> pathTaken;
 
+
     // cout << "Path explored: " << endl;
 
     while (goalState == false) {
@@ -108,7 +112,7 @@ void search(Maze& m1) {
 
         pathTaken.push_back(currentStep.id);
 
-        cout << currentStep.id << " ";
+        // cout << "ID: " << currentStep.id << " " << currentStep.c << " " << currentStep.h << " " << currentStep.f <<  endl;
 
         // what direction did it come from
         for (int i = 0; i < currentStep.options.size(); i++) {
@@ -116,24 +120,36 @@ void search(Maze& m1) {
             int option = currentStep.options[i];
 
             if (std::find(pathTaken.begin(), pathTaken.end(), data[option].id) == pathTaken.end()) {
-                pq.push(data[option]);
-
                 if (option == currentStep.id - 1) {
-                    data[option].path   = 'E';
-                    data[option].parent = currentStep.id;
-                } else if (option == currentStep.id + 1) {
                     data[option].path   = 'W';
                     data[option].parent = currentStep.id;
-                } else if (option > currentStep.id - 1) {
-                    data[option].path   = 'N';
+
+                    data[option].c = currentStep.c + 1;
+                    data[option].f = currentStep.c + 1 + data[option].h;
+                } else if (option == currentStep.id + 1) {
+                    data[option].path   = 'E';
                     data[option].parent = currentStep.id;
-                } else if (option < currentStep.id + 1) {
+
+                    data[option].c = currentStep.c + 1;
+                    data[option].f = currentStep.c + 1 + data[option].h;
+                } else if (option > currentStep.id - 1) {
                     data[option].path   = 'S';
                     data[option].parent = currentStep.id;
-                } else {
-                    data[option].path   = 'X';
-                    data[option].parent = 1;
+
+                    data[option].c = currentStep.c + 1;
+                    data[option].f = currentStep.c + 1 + data[option].h;
+                } else if (option < currentStep.id + 1) {
+                    data[option].path   = 'N';
+                    data[option].parent = currentStep.id;
+
+                    data[option].c = currentStep.c + 1;
+                    data[option].f = currentStep.c + 1 + data[option].h;
+                }  else {
+                    // data[option].path   = 'X';
+                    // data[option].parent = 1;
                 }
+
+                pq.push(data[option]);
             }
         }
 
@@ -152,27 +168,36 @@ void search(Maze& m1) {
         start = 'E';
     }
 
-    vector<int> sol;
+    vector<int>  sol;
+    vector<char> sols;
     sol.push_back(data[1].id);
     int pos = pathTaken.size() - 1;
-    int par = pathTaken[pos];
+    int par =  pathTaken[pos];
 
-    // int par = data[pos].parent;
 
     while (par != m1.sID) {
         sol.push_back(data[par].parent);
-        cout << endl << data[par].parent << " ";
+
+        // cout << data[par].parent << " ";
         par = data[par].parent;
     }
 
-    // par = data[pos].parent;
     par = pathTaken[pos];
     cout << endl << start << " ";
 
     while (par != m1.sID) {
-        cout << data[par].path << " ";
+        // cout << data[par].path << " ";
+        sols.push_back(data[par].path);
+
         par = data[par].parent;
     }
+
+    vector<char>::iterator it;
+
+    for (it = sols.end() - 1; it >= sols.begin(); it--) {
+        cout << *it << " ";
+    }
+    cout << endl;
 
     m1.printMazeSol(sol);
 }
@@ -183,6 +208,9 @@ int main() {
 
     row = 50;
     col = 88;
+
+    // row = 20;
+    // col = 20;
 
     // start = ij
     int si = 0;
